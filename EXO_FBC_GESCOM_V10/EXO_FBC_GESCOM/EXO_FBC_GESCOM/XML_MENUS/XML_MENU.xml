@@ -1,0 +1,12 @@
+﻿<Application>
+  <Menus>
+    <action type="add">
+      <Menu Checked="0" Enabled="1" FatherUID="2048" Image="" String="Gestión de comisiones" Type="2" UniqueID="EXO-MnGCOM"></Menu>
+      <Menu Checked="0" Enabled="1" FatherUID="EXO-MnGCOM" Image="" String="Parametrización" Type="2" UniqueID="EXO-MnPCOM"></Menu>
+      <Menu Checked="0" Enabled="1" FatherUID="EXO-MnPCOM" Image="" String="Descuentos y Comisiones" Type="1" UniqueID="EXO-DTCOM"></Menu>
+      <Menu Checked="0" Enabled="1" FatherUID="EXO-MnGCOM" Image="" String="Comisiones" Type="2" UniqueID="EXO-MnICOM"></Menu>
+      <Menu Checked="0" Enabled="1" FatherUID="EXO-MnICOM" Image="" String="Crear/Imprimir Comisiones" Type="1" UniqueID="EXO-SELCOM"></Menu>
+    </action>
+  </Menus>
+</Application>
+
