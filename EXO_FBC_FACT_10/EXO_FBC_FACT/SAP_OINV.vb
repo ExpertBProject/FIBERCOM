@@ -325,7 +325,7 @@ Public Class SAP_OINV
 
                         oMessageService = CType(oCmpSrv.GetBusinessService(SAPbobsCOM.ServiceTypes.MessagesService), SAPbobsCOM.MessagesService)
                         oMessage = CType(oMessageService.GetDataInterface(SAPbobsCOM.MessagesServiceDataInterfaces.msdiMessage), SAPbobsCOM.Message)
-                        sSubject = "Este cliente cuenta con condiciones de facturacón: " & sEspeci
+                        sSubject = "Este cliente tiene condiciones de fact.: " & sEspeci
                         oMessage.Subject = sSubject
                         oMessage.Text = sSubject
                         oRecipientCollection = oMessage.RecipientCollection

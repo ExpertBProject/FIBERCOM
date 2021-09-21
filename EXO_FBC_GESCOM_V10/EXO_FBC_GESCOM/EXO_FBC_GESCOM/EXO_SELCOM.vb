@@ -734,7 +734,7 @@ Public Class EXO_SELCOM
             sUser = objGlobal.refDi.SQL.usuarioSQL
             sPwd = objGlobal.refDi.SQL.claveSQL
 
-            sServer = objGlobal.compañia.Server.Replace("HDB@", "").Replace("30013", "30015")
+            sServer = objGlobal.compañia.Server.Replace("NDB@", "").Replace("HDB@", "").Replace("30013", "30015")
             oCRReport.Load(objGlobal.refDi.OGEN.pathGeneral & "\05.Rpt\" & sRptFileName, OpenReportMethod.OpenReportByDefault)
 
             If objGlobal.compañia.DbServerType = SAPbobsCOM.BoDataServerTypes.dst_HANADB Then

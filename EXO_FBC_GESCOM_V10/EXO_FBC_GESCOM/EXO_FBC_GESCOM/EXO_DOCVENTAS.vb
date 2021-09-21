@@ -173,45 +173,47 @@ Public Class EXO_DOCVENTAS
         Try
             'Recuperar el formulario
             oForm = objGlobal.SBOApp.Forms.Item(pVal.FormUID)
+            If CType(oForm.Items.Item("3").Specific, SAPbouiCOM.ComboBox).Selected.Value.ToString = "I" Then
+                Select Case pVal.ColUID
+                    Case "1" 'articulo
+                        'buscar si tiene limiente de descuento, y marcar en el desplegable si o no
+                        sSQL = "SELECT COALESCE(""U_EXO_LIMDTO"",'N') ""U_EXO_LIMDTO""  FROM ""OCRD"" WHERE ""CardCode""='" & CType(oForm.Items.Item("4").Specific, SAPbouiCOM.EditText).Value.ToString & "' "
+                        oRs.DoQuery(sSQL)
+                        If oRs.RecordCount > 0 Then
 
-            Select Case pVal.ColUID
-                Case "1" 'articulo
-                    'buscar si tiene limiente de descuento, y marcar en el desplegable si o no
-                    sSQL = "SELECT COALESCE(""U_EXO_LIMDTO"",'N') ""U_EXO_LIMDTO""  FROM ""OCRD"" WHERE ""CardCode""='" & CType(oForm.Items.Item("4").Specific, SAPbouiCOM.EditText).Value.ToString & "' "
-                    oRs.DoQuery(sSQL)
-                    If oRs.RecordCount > 0 Then
+                            CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("U_EXO_APLILIMDTO").Cells.Item(pVal.Row).Specific, SAPbouiCOM.ComboBox).Select(oRs.Fields.Item("U_EXO_LIMDTO").Value.ToString)
+                            CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("11").Cells.Item(pVal.Row).Specific, SAPbouiCOM.EditText).Active = True
+                        End If
 
-                        CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("U_EXO_APLILIMDTO").Cells.Item(pVal.Row).Specific, SAPbouiCOM.ComboBox).Select(oRs.Fields.Item("U_EXO_LIMDTO").Value.ToString)
-                        CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("11").Cells.Item(pVal.Row).Specific, SAPbouiCOM.EditText).Active = True
-                    End If
+                        'Case "15" '%Dto. Controlamos si puede introducir Dto.
+                        '    sSQL = "SELECT ""U_EXO_LIMDTO"" FROM ""OCRD"" WHERE ""CardCode""='" & CType(oForm.Items.Item("4").Specific, SAPbouiCOM.EditText).Value.ToString & "' "
+                        '    oRs.DoQuery(sSQL)
+                        '    If oRs.RecordCount > 0 Then
+                        '        If oRs.Fields.Item("U_EXO_LIMDTO").Value.ToString <> "Y" And CDbl(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Cells.Item(pVal.Row).Specific, SAPbouiCOM.EditText).Value) > 0 Then
+                        '            'SboApp.StatusBar.SetText("(EXO) - No es posible otorgar descuentos a este cliente.", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error)
+                        '            'SboApp.MessageBox("No es posible otorgar descuentos a este cliente.")
+                        '            'CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Cells.Item(pVal.Row).Specific, SAPbouiCOM.EditText).Value = CType(0, String)
+                        '        Else
+                        '            ValidarDescuentos(oForm, pVal)
+                        '            'Valida el grupo de artículo al cual pertenece el artículo seleccionado
+                        '            'Comparará el porcentaje de descuento indicado en el documento contra la información registrada en el objeto “Descuentos y comisiones”.
+                        '            'Basándose en el descuento otorgado al artículo, el sistema identificará el porcentaje de comisión correspondiente.
+                        '            'SAP escribirá el porcentaje de comisión en el campo % de comisión (Commission).
+                        '        End If
+                        '    Else
+                        '        SboApp.StatusBar.SetText("(EXO) - Error inesperado. No se encuentra el interlocutor.", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error)
+                        '        SboApp.MessageBox("Error inesperado. No se encuentra el interlocutor.")
+                        '        CType(oForm.Items.Item("4").Specific, SAPbouiCOM.EditText).Active = True
+                        '        Exit Function
+                        '    End If
 
-                    'Case "15" '%Dto. Controlamos si puede introducir Dto.
-                    '    sSQL = "SELECT ""U_EXO_LIMDTO"" FROM ""OCRD"" WHERE ""CardCode""='" & CType(oForm.Items.Item("4").Specific, SAPbouiCOM.EditText).Value.ToString & "' "
-                    '    oRs.DoQuery(sSQL)
-                    '    If oRs.RecordCount > 0 Then
-                    '        If oRs.Fields.Item("U_EXO_LIMDTO").Value.ToString <> "Y" And CDbl(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Cells.Item(pVal.Row).Specific, SAPbouiCOM.EditText).Value) > 0 Then
-                    '            'SboApp.StatusBar.SetText("(EXO) - No es posible otorgar descuentos a este cliente.", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error)
-                    '            'SboApp.MessageBox("No es posible otorgar descuentos a este cliente.")
-                    '            'CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Cells.Item(pVal.Row).Specific, SAPbouiCOM.EditText).Value = CType(0, String)
-                    '        Else
-                    '            ValidarDescuentos(oForm, pVal)
-                    '            'Valida el grupo de artículo al cual pertenece el artículo seleccionado
-                    '            'Comparará el porcentaje de descuento indicado en el documento contra la información registrada en el objeto “Descuentos y comisiones”.
-                    '            'Basándose en el descuento otorgado al artículo, el sistema identificará el porcentaje de comisión correspondiente.
-                    '            'SAP escribirá el porcentaje de comisión en el campo % de comisión (Commission).
-                    '        End If
-                    '    Else
-                    '        SboApp.StatusBar.SetText("(EXO) - Error inesperado. No se encuentra el interlocutor.", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error)
-                    '        SboApp.MessageBox("Error inesperado. No se encuentra el interlocutor.")
-                    '        CType(oForm.Items.Item("4").Specific, SAPbouiCOM.EditText).Active = True
-                    '        Exit Function
-                    '    End If
-
-            End Select
+                End Select
 
 
-            CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Visible = True
-            CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Width = 80
+                CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Visible = True
+                CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Width = 80
+            End If
+
 
             EventHandler_Form_VALIDATE_AFTER = True
 
