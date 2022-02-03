@@ -430,171 +430,134 @@ Public Class EXO_DOCVENTAS
                     oForm.PaneLevel = 1
 
                     For i As Integer = 1 To CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).RowCount - 1
-                        'si la cantidad del documento es difernte de la open qty, no entro por aqui
-                        'column 11 cantidad
-                        'column 32 cantidad pendiente
-                        'column 257 tipo linea
-                        If CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("11").Cells.Item(i).Specific, SAPbouiCOM.EditText).String = CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("32").Cells.Item(i).Specific, SAPbouiCOM.EditText).String And CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("257").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Value = "" Then
+                        If CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Editable = True Then
+                            'si la cantidad del documento es difernte de la open qty, no entro por aqui
+                            'column 11 cantidad
+                            'column 32 cantidad pendiente
+                            'column 257 tipo linea
+                            If CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("11").Cells.Item(i).Specific, SAPbouiCOM.EditText).String = CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("32").Cells.Item(i).Specific, SAPbouiCOM.EditText).String And CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("257").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Value = "" Then
 
-                            sSQL = "SELECT ""ItmsGrpCod"" FROM ""OITM"" WHERE ""ItemCode""='" & CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("1").Cells.Item(i).Specific, SAPbouiCOM.EditText).Value & "' "
-                            oRs.DoQuery(sSQL)
-                            If oRs.RecordCount > 0 Then
-                                sGrupo = oRs.Fields.Item("ItmsGrpCod").Value.ToString
-                            End If
-
-                            sSQL = "SELECT T0.""Code"", T0.""U_EXO_MIN"", T0.""U_EXO_MAX"", T1.""U_EXO_DTOD"", T1.""U_EXO_DTOH"", T1.""U_EXO_COM"" " _
-                            & " FROM ""@EXO_DTCOMC""  T0 " _
-                            & " INNER JOIN ""@EXO_DTOCOML""  T1 ON T1.""Code"" = T0.""Code"" " _
-                            & " where  T0.""Code""='" & sGrupo & "'"
-                            oRs.DoQuery(sSQL)
-                            'si hay valor, y la linea está marcada como limitacion de descuentos, entro al proceso y sino todo a 0
-                            If oRs.RecordCount > 0 And CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("U_EXO_APLILIMDTO").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Value = "Y" Then
-                                If CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Cells.Item(i).Specific, SAPbouiCOM.EditText).String <> "" Then
-                                    dDtoLin = CDbl(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Cells.Item(i).Specific, SAPbouiCOM.EditText).String.Replace(".", ""))
-                                Else
-                                    dDtoLin = 0
-                                End If
-                                If CType(oForm.Items.Item("24").Specific, SAPbouiCOM.EditText).String <> "" Then
-                                    dDtoGlobal = CDbl(CType(oForm.Items.Item("24").Specific, SAPbouiCOM.EditText).String.Replace(".", ""))
+                                sSQL = "SELECT ""ItmsGrpCod"" FROM ""OITM"" WHERE ""ItemCode""='" & CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("1").Cells.Item(i).Specific, SAPbouiCOM.EditText).Value & "' "
+                                oRs.DoQuery(sSQL)
+                                If oRs.RecordCount > 0 Then
+                                    sGrupo = oRs.Fields.Item("ItmsGrpCod").Value.ToString
                                 End If
 
-                                dblCan = CDbl(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("11").Cells.Item(i).Specific, SAPbouiCOM.EditText).String.Replace(".", ""))
-
-                                'columna 14 precio
-                                If CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("14").Cells.Item(i).Specific, SAPbouiCOM.EditText).String <> "" Then
-
-                                    dblPrecio = CDbl(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("14").Cells.Item(i).Specific, SAPbouiCOM.EditText).String.Substring(0, CInt(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("14").Cells.Item(i).Specific, SAPbouiCOM.EditText).String.Length - 4)).Replace(".", ""))
-
-
-                                    dblPrecioDtoLinea = dblPrecio - ((dblPrecio * dDtoLin) / 100)
-                                    dblPrecioDtoLineaTotal = dblPrecioDtoLinea - ((dblPrecioDtoLinea * dDtoGlobal) / 100)
-
-                                    dDto = 100 - ((dblPrecioDtoLineaTotal * 100) / dblPrecio)
-                                    dDto = Math.Round(dDto, 2)
-                                    'redondear el descuento
-
-                                    'Me.SboApp.MessageBox("dDto: " & dDto)
-
-                                    sSQL = "SELECT T0.""Code"", T0.""U_EXO_MIN"", T0.""U_EXO_MAX"", T1.""U_EXO_DTOD"", T1.""U_EXO_DTOH"", T1.""U_EXO_COM"" " _
-                                    & " FROM ""@EXO_DTCOMC""  T0 " _
-                                    & " INNER JOIN ""@EXO_DTOCOML""  T1 ON T1.""Code"" = T0.""Code"" " _
-                                    & " where  T0.""Code""='" & sGrupo & "' and " & dDto.ToString.Replace(",", ".") & " BETWEEN  ""U_EXO_MIN"" AND T0.""U_EXO_MAX"" "
-                                    oRs.DoQuery(sSQL)
-                                    If oRs.RecordCount > 0 Then
-                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = True
-                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Value = CType(0, String)
-                                        'si no hay descuento globlal, pasamos a obtener los descuento por linea
-                                        oXml.LoadXml(oRs.GetAsXML())
-                                        oNodes = oXml.SelectNodes("//row")
-
-                                        For j As Integer = 0 To oNodes.Count - 1
-                                            oNode = oNodes.Item(j)
-                                            If dDto >= CDbl(oNode.SelectSingleNode("U_EXO_DTOD").InnerText.Replace(".", ",")) And dDto <= CDbl(oNode.SelectSingleNode("U_EXO_DTOH").InnerText.Replace(".", ",")) Then
-                                                Try
-                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = True
-                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).String = CType(CDbl(oNode.SelectSingleNode("U_EXO_COM").InnerText.Replace(".", ",")), String)
-                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = True
-                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).String = CType(CDbl(dDto.ToString.Replace(".", ",")), String)
-                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = False
-                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = False
-
-                                                    dblPrecioDespDescGlobal = dblPrecio - (dblPrecio * dDto / 100)
-
-                                                    dblImpLinSinDto = dblCan * dblPrecioDespDescGlobal
-
-                                                    'Me.SboApp.MessageBox("Lineas: " & i & " dblCan: " & dblCan & " - dblPrecio: " & dblPrecio & " - dblImpLinSinDto: " & dblImpLinSinDto)
-                                                    'dblImpComisionLinea = dblImpLinSinDto * CDbl(dDto.ToString.Replace(".", ",")) / 100
-                                                    dblImpComisionLinea = dblImpLinSinDto * CDbl(oNode.SelectSingleNode("U_EXO_COM").InnerText.Replace(".", ",")) / 100
-                                                    'si el documento es una devolución o un abono, multiplicar por -1
-                                                    If oForm.TypeEx = "180" OrElse oForm.TypeEx = "179" Then
-                                                        dblImpComisionLinea = dblImpComisionLinea * -1
-                                                    End If
-
-                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).String = CType(CDbl(dblImpComisionLinea.ToString.Replace(".", ",")), String)
-
-                                                    Exit For
-                                                Catch ex As Exception
-
-                                                End Try
-                                            Else
-                                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = True
-                                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).String = CType(0, String)
-                                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = True
-                                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).Active = True
-                                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).String = CType(0, String)
-                                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).String = CType(0, String)
-                                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = False
-                                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = False
-                                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).Active = False
-                                            End If
-                                        Next
+                                sSQL = "SELECT T0.""Code"", T0.""U_EXO_MIN"", T0.""U_EXO_MAX"", T1.""U_EXO_DTOD"", T1.""U_EXO_DTOH"", T1.""U_EXO_COM"" " _
+                                & " FROM ""@EXO_DTCOMC""  T0 " _
+                                & " INNER JOIN ""@EXO_DTOCOML""  T1 ON T1.""Code"" = T0.""Code"" " _
+                                & " where  T0.""Code""='" & sGrupo & "'"
+                                oRs.DoQuery(sSQL)
+                                'si hay valor, y la linea está marcada como limitacion de descuentos, entro al proceso y sino todo a 0
+                                If oRs.RecordCount > 0 And CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("U_EXO_APLILIMDTO").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Value = "Y" Then
+                                    If CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Cells.Item(i).Specific, SAPbouiCOM.EditText).String <> "" Then
+                                        dDtoLin = CDbl(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Cells.Item(i).Specific, SAPbouiCOM.EditText).String.Replace(".", ""))
                                     Else
-                                        objGlobal.SBOApp.MessageBox("Lineas:      " & i & " - El % Dto no cumple o no está dado de alta en las Comisiones-Descuentos por Familia" & " Desc. Linea: " & dDtoLin & " Desc. global: " & dDtoGlobal & " Decs. Total: " & dDto)
-                                        CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Cells.Item(i).Specific, SAPbouiCOM.EditText).Value = CType(0, String)
-                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = True
-                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).String = CType(0, String)
-                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = True
-                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).Active = True
-                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).String = CType(0, String)
-                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).String = CType(0, String)
-                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = False
-                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = False
-                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).Active = False
-                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("15").Cells.Item(i).Specific, EditText).Active = True
-                                        Exit Function
+                                        dDtoLin = 0
+                                    End If
+                                    If CType(oForm.Items.Item("24").Specific, SAPbouiCOM.EditText).String <> "" Then
+                                        dDtoGlobal = CDbl(CType(oForm.Items.Item("24").Specific, SAPbouiCOM.EditText).String.Replace(".", ""))
                                     End If
 
-                                    'If dDtoGlobal <> 0 Then 
+                                    dblCan = CDbl(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("11").Cells.Item(i).Specific, SAPbouiCOM.EditText).String.Replace(".", ""))
 
-                                    '    dblCan = CDbl(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("11").Cells.Item(i).Specific, SAPbouiCOM.EditText).String.Replace(".", ""))
-                                    '    dblPrecio = CDbl(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("14").Cells.Item(i).Specific, SAPbouiCOM.EditText).String.Substring(0, CInt(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("14").Cells.Item(i).Specific, SAPbouiCOM.EditText).String.Length - 4)).Replace(".", ""))
-                                    '    dblImpLinSinDto = dblCan * dblPrecio
-                                    '    dblImpLinDto = (dblImpLinSinDto * CDbl(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Cells.Item(i).Specific, SAPbouiCOM.EditText).String.Replace(".", ""))) / 100
-                                    '    dblImpLinConDto = CDbl(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("21").Cells.Item(i).Specific, SAPbouiCOM.EditText).String.Substring(0, CInt(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("21").Cells.Item(i).Specific, SAPbouiCOM.EditText).String.Length - 4)).Replace(".", ""))
-                                    '    dblImpDtoReparto = dblImpLinConDto * dblImpDtoTotalGlobal / dblTotSinDtoGlobal
-                                    '    dblPorDtoCalculado = ((dblImpLinDto + dblImpDtoReparto) * 100) / dblImpLinSinDto
+                                    'columna 14 precio
+                                    If CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("14").Cells.Item(i).Specific, SAPbouiCOM.EditText).String <> "" Then
 
-                                    '    'este descuento calculado será el que tenemos que controlar que esté dentro del minimo y máximo, y obtendremos el % de comision
-                                    '    sSQL = "SELECT T0.""Code"", T0.""U_EXO_MIN"", T0.""U_EXO_MAX"", T1.""U_EXO_DTOD"", T1.""U_EXO_DTOH"", T1.""U_EXO_COM"" " _
-                                    '    & " FROM ""@EXO_DTCOMC""  T0 " _
-                                    '    & " INNER JOIN ""@EXO_DTOCOML""  T1 ON T1.""Code"" = T0.""Code"" " _
-                                    '    & " where  T0.""Code""='" & sGrupo & "' and " & dDto & " BETWEEN  ""U_EXO_MIN"" AND T0.""U_EXO_MAX"" "
-                                    '    oRs.DoQuery(sSQL)
-                                    '    If oRs.RecordCount > 0 Then
-                                    '        'si no hay descuento globlal, pasamos a obtener los descuento por linea
-                                    '        oXml.LoadXml(oRs.GetAsXML())
-                                    '        oNodes = oXml.SelectNodes("//row")
-                                    '        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Value = CType(0, String)
-                                    '        For j As Integer = 0 To oNodes.Count - 1
-                                    '            oNode = oNodes.Item(j)
-                                    '            If CDbl(dblPorDtoCalculado.ToString.Replace(".", ",")) >= CDbl(oNode.SelectSingleNode("U_EXO_DTOD").InnerText.Replace(".", ",")) And CDbl(dblPorDtoCalculado.ToString.Replace(".", ",")) <= CDbl(oNode.SelectSingleNode("U_EXO_DTOH").InnerText.Replace(".", ",")) Then
-                                    '                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).String = CType(CDbl(oNode.SelectSingleNode("U_EXO_COM").InnerText.Replace(".", ",")), String)
-                                    '                dblPorDtoCalculado = Math.Round(dblPorDtoCalculado, 2)
+                                        dblPrecio = CDbl(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("14").Cells.Item(i).Specific, SAPbouiCOM.EditText).String.Substring(0, CInt(CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("14").Cells.Item(i).Specific, SAPbouiCOM.EditText).String.Length - 4)).Replace(".", ""))
 
-                                    '                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).String = CType(CDbl(dblPorDtoCalculado.ToString.Replace(".", ",")), String)
-                                    '            End If
-                                    '        Next
 
-                                    '    Else
-                                    '        Me.SboApp.MessageBox("El % Dto no cumple 44 o no está dado de alta en las Comisiones-Descuentos por Familia")
-                                    '        CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Cells.Item(i).Specific, SAPbouiCOM.EditText).String = CType(0, String)
-                                    '        Exit Function
-                                    '    End If
-                                    'End If
+                                        dblPrecioDtoLinea = dblPrecio - ((dblPrecio * dDtoLin) / 100)
+                                        dblPrecioDtoLineaTotal = dblPrecioDtoLinea - ((dblPrecioDtoLinea * dDtoGlobal) / 100)
+
+                                        dDto = 100 - ((dblPrecioDtoLineaTotal * 100) / dblPrecio)
+                                        dDto = Math.Round(dDto, 2)
+                                        'redondear el descuento
+
+                                        'Me.SboApp.MessageBox("dDto: " & dDto)
+
+                                        sSQL = "SELECT T0.""Code"", T0.""U_EXO_MIN"", T0.""U_EXO_MAX"", T1.""U_EXO_DTOD"", T1.""U_EXO_DTOH"", T1.""U_EXO_COM"" " _
+                                        & " FROM ""@EXO_DTCOMC""  T0 " _
+                                        & " INNER JOIN ""@EXO_DTOCOML""  T1 ON T1.""Code"" = T0.""Code"" " _
+                                        & " where  T0.""Code""='" & sGrupo & "' and " & dDto.ToString.Replace(",", ".") & " BETWEEN  ""U_EXO_MIN"" AND T0.""U_EXO_MAX"" "
+                                        oRs.DoQuery(sSQL)
+                                        If oRs.RecordCount > 0 Then
+                                            CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = True
+                                            CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Value = CType(0, String)
+                                            'si no hay descuento globlal, pasamos a obtener los descuento por linea
+                                            oXml.LoadXml(oRs.GetAsXML())
+                                            oNodes = oXml.SelectNodes("//row")
+
+                                            For j As Integer = 0 To oNodes.Count - 1
+                                                oNode = oNodes.Item(j)
+                                                If dDto >= CDbl(oNode.SelectSingleNode("U_EXO_DTOD").InnerText.Replace(".", ",")) And dDto <= CDbl(oNode.SelectSingleNode("U_EXO_DTOH").InnerText.Replace(".", ",")) Then
+                                                    Try
+                                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = True
+                                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).String = CType(CDbl(oNode.SelectSingleNode("U_EXO_COM").InnerText.Replace(".", ",")), String)
+                                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = True
+                                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).String = CType(CDbl(dDto.ToString.Replace(".", ",")), String)
+                                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = False
+                                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = False
+
+                                                        dblPrecioDespDescGlobal = dblPrecio - (dblPrecio * dDto / 100)
+
+                                                        dblImpLinSinDto = dblCan * dblPrecioDespDescGlobal
+
+                                                        'Me.SboApp.MessageBox("Lineas: " & i & " dblCan: " & dblCan & " - dblPrecio: " & dblPrecio & " - dblImpLinSinDto: " & dblImpLinSinDto)
+                                                        'dblImpComisionLinea = dblImpLinSinDto * CDbl(dDto.ToString.Replace(".", ",")) / 100
+                                                        dblImpComisionLinea = dblImpLinSinDto * CDbl(oNode.SelectSingleNode("U_EXO_COM").InnerText.Replace(".", ",")) / 100
+                                                        'si el documento es una devolución o un abono, multiplicar por -1
+                                                        If oForm.TypeEx = "180" OrElse oForm.TypeEx = "179" Then
+                                                            dblImpComisionLinea = dblImpComisionLinea * -1
+                                                        End If
+
+                                                        CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).String = CType(CDbl(dblImpComisionLinea.ToString.Replace(".", ",")), String)
+
+                                                        Exit For
+                                                    Catch ex As Exception
+
+                                                    End Try
+                                                Else
+                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = True
+                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).String = CType(0, String)
+                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = True
+                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).Active = True
+                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).String = CType(0, String)
+                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).String = CType(0, String)
+                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = False
+                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = False
+                                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).Active = False
+                                                End If
+                                            Next
+                                        Else
+                                            objGlobal.SBOApp.MessageBox("Lineas:      " & i & " - El % Dto no cumple o no está dado de alta en las Comisiones-Descuentos por Familia" & " Desc. Linea: " & dDtoLin & " Desc. global: " & dDtoGlobal & " Decs. Total: " & dDto)
+                                            CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("15").Cells.Item(i).Specific, SAPbouiCOM.EditText).Value = CType(0, String)
+                                            CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = True
+                                            CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).String = CType(0, String)
+                                            CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = True
+                                            CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).Active = True
+                                            CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).String = CType(0, String)
+                                            CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).String = CType(0, String)
+                                            CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = False
+                                            CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = False
+                                            CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).Active = False
+                                            CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("15").Cells.Item(i).Specific, EditText).Active = True
+                                            Exit Function
+                                        End If
+                                    End If
+                                Else
+                                    'todo a 0 comsion de sap, y campos propios
+
+                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = True
+                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).String = CType(0, String)
+                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = True
+                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).Active = True
+                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).String = CType(0, String)
+                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).String = CType(0, String)
+                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = False
+                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = False
+                                    CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).Active = False
                                 End If
-                            Else
-                                'todo a 0 comsion de sap, y campos propios
-
-                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = True
-                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).String = CType(0, String)
-                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = True
-                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).Active = True
-                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).String = CType(0, String)
-                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).String = CType(0, String)
-                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("28").Cells.Item(i).Specific, EditText).Active = False
-                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_DTOCAL").Cells.Item(i).Specific, EditText).Active = False
-                                CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).Active = False
-
                             End If
                         End If
                     Next
