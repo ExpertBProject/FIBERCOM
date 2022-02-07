@@ -513,7 +513,7 @@ Public Class EXO_DOCVENTAS
                                                             dblImpComisionLinea = dblImpComisionLinea * -1
                                                         End If
                                                         Dim sImpCom As String = EXO_GLOBALES.DblNumberToText(objGlobal.compañia, dblImpComisionLinea, EXO_GLOBALES.FuenteInformacion.Otros)
-                                                        objGlobal.SBOApp.MessageBox(sImpCom)
+                                                        'objGlobal.SBOApp.MessageBox(sImpCom)
                                                         CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).Active = True
                                                         CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("U_EXO_IMPCOM").Cells.Item(i).Specific, EditText).Value = sImpCom
                                                         ' objGlobal.SBOApp.MessageBox("2")
