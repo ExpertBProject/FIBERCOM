@@ -431,8 +431,14 @@ Public Class EXO_DOCVENTAS
                     oForm.PaneLevel = 1
 
                     For i As Integer = 1 To CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).RowCount - 1
-                        Dim statusLin As String = CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("40").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Selected.Value.ToString
+                        Dim statusLin As String = ""
                         Dim sTipoLin As String = ""
+                        Try
+                            statusLin = CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("40").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Selected.Value.ToString
+                        Catch ex As Exception
+                            statusLin = "C"
+                        End Try
+
                         If CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("40").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Selected IsNot Nothing Then
                             sTipoLin = CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("257").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Selected.Value.ToString
                         End If
@@ -588,8 +594,13 @@ Public Class EXO_DOCVENTAS
                     'recorrer lineas y poner la comisión a 0
 
                     For i As Integer = 1 To CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).RowCount - 1
-                        Dim statusLin As String = CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("40").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Selected.Value.ToString
+                        Dim statusLin As String = ""
                         Dim sTipoLin As String = ""
+                        Try
+                            statusLin = CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("40").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Selected.Value.ToString
+                        Catch ex As Exception
+                            statusLin = "C"
+                        End Try
                         If CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("40").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Selected IsNot Nothing Then
                             sTipoLin = CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("257").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Selected.Value.ToString
                         End If
