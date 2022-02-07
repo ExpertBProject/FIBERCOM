@@ -369,7 +369,7 @@ Public Class EXO_DOCVENTAS
         End Try
     End Function
     Private Function ComprobarDescuentos(ByRef oForm As SAPbouiCOM.Form) As Boolean
-
+#Region "Variables"
         Dim sSQL As String = ""
         Dim oRs As SAPbobsCOM.Recordset = CType(objGlobal.compañia.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset), SAPbobsCOM.Recordset)
         Dim oXml As System.Xml.XmlDocument = New System.Xml.XmlDocument
@@ -401,6 +401,7 @@ Public Class EXO_DOCVENTAS
 
         'precio
         Dim dblPrecio As Double = 0
+#End Region
 
         ComprobarDescuentos = False
         Try
@@ -431,7 +432,12 @@ Public Class EXO_DOCVENTAS
 
                     For i As Integer = 1 To CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).RowCount - 1
                         Dim statusLin As String = CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("40").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Selected.Value.ToString
-                        If statusLin = "O" Then
+                        Dim sTipoLin As String = ""
+                        If CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("40").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Selected IsNot Nothing Then
+                            sTipoLin = CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("257").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Selected.Value.ToString
+                        End If
+
+                        If statusLin = "O" And (sTipoLin <> "S" And sTipoLin <> "T") Then
                             'objGlobal.SBOApp.MessageBox(statusLin)
                             'si la cantidad del documento es difernte de la open qty, no entro por aqui
                             'column 11 cantidad
@@ -583,7 +589,11 @@ Public Class EXO_DOCVENTAS
 
                     For i As Integer = 1 To CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).RowCount - 1
                         Dim statusLin As String = CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("40").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Selected.Value.ToString
-                        If statusLin = "O" Then
+                        Dim sTipoLin As String = ""
+                        If CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("40").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Selected IsNot Nothing Then
+                            sTipoLin = CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("257").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Selected.Value.ToString
+                        End If
+                        If statusLin = "O" And (sTipoLin <> "S" And sTipoLin <> "T") Then
                             If CType(CType(oForm.Items.Item("38").Specific, SAPbouiCOM.Matrix).Columns.Item("257").Cells.Item(i).Specific, SAPbouiCOM.ComboBox).Value = "" Then
                                 'objGlobal.SBOApp.MessageBox("9")
                                 CType(CType(oForm.Items.Item("38").Specific, Matrix).Columns.Item("15").Cells.Item(i).Specific, EditText).Active = True
